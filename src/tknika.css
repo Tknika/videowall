@@ -1,0 +1,81 @@
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: table;
+
+    font-family: 'Roboto', sans-serif;
+}
+
+.centered {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.event {
+    color: white;
+    font-size: 28px;
+    text-align: left;
+    margin-left: 38%;
+}
+
+.current-event {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+    margin-left: 0px;
+}
+
+.time {
+    display: inline-block;
+    font-size: 10px;
+    width: 60px;
+}
+
+.title {
+    display: inline-block;
+}
+
+.info, .now {
+    display: none;
+}
+
+
+.current-event .time {
+    display: inline-block;
+    font-size: 30px;
+    width: auto;
+}
+
+.current-event .title {
+    font-size: 62px;
+    display: inline-block;
+    padding-left: 30px;
+    padding-right: 30px;
+    border-left: thick solid #AB47BC;
+    border-right: thick solid #AB47BC;
+}
+
+.current-event .info {
+    display: inline-block;
+    font-size: 20px;
+    text-align: left;
+}
+
+.current-event .now {
+    display: block;
+    text-align: right;
+    color: #00BCD4;
+}
+
+.info .room {
+    display: block;
+}
+
+.info .owner {
+    display: block;
+}

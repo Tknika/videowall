@@ -1,0 +1,41 @@
+{
+  "title": "Event",
+  "type": "object",
+  "id": "event",
+  "properties": {
+      "title": {
+          "type": "string",
+          "description": "Event title",
+          "minLength": 2
+      },
+      "time": {
+          "type": "object",
+          "title": "Time",
+          "properties": {
+            "start": {
+                "type": "string",
+                "format": "time"
+            },
+            "end": {
+                "type": "string",
+                "format": "time"
+            }
+          }
+      },
+      "info": {
+          "type": "object",
+          "title": "Info",
+          "properties": {
+            "room": {
+                "type": "string",
+                "description": "Room/place",
+                "minLength": 2
+            },
+            "owner": {
+                "type": "string",
+                "description": "Event owner person"
+            }
+          }
+      }
+  }
+}

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Event editor</title>
+    
+    <!-- Foundation CSS framework (Bootstrap and jQueryUI also supported) -->
+    <!--<link rel='stylesheet' href='//cdn.jsdelivr.net/foundation/5.0.2/css/foundation.min.css'>-->
+
+    <!-- Bootstrap CSS framework -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Bootstrap Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    
+    <!-- Font Awesome icons (Bootstrap, Foundation, and jQueryUI also supported) -->
+    <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css'>
+    
+    <script src="js/jsoneditor.min.js"></script>
+    
+    <script>
+    // Set the default CSS theme and icon library globally
+    JSONEditor.defaults.theme = 'bootstrap3';
+    JSONEditor.defaults.iconlib = 'fontawesome4';
+    </script>
+  </head>
+  <body>
+    <div class='row'>
+      <div class='col-md-4'>
+        <h1>Event editor</h1>
+      </div>
+    </div>
+ 
+    <div class='row'>
+      <div class='col-md-8'>
+        <button id='submit' class='btn btn-success'>Save</button>
+        <button id='restore' class='btn btn-default'>Restore to Default</button>
+        <a class="btn btn-default" href="../">Preview</a>
+        <span id='valid_indicator' class='label'></span>
+        <span id='saved_indicator' class='label'></span>
+      </div>
+    </div>
+    <div class='row'>
+        <div class="span8 col-md-8 columns eight large-8">
+            <div id='editor_holder' class='span12 col-md-12 columns twelve large-12'></div>
+        </div>
+    </div>
+    
+    <script>
+      function jsonUpdatedOk(){
+          var indicator = document.getElementById('saved_indicator');
+          indicator.className = 'label label-primary';
+          indicator.textContent = 'updated';
+      }
+
+      function jsonUpdatedError(){
+          var indicator = document.getElementById('saved_indicator');
+          indicator.className = 'label label-danger';
+          indicator.textContent = 'not updated';
+      }
+  
+      function getJSON(url, callback) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("get", url, true);
+          xhr.responseType = "json";
+          xhr.onload = function() {
+              var status = xhr.status;
+              if (status == 200) {
+                  callback(null, xhr.response);
+              } else {
+                  callback(status);
+              }
+          };
+          xhr.send();
+      };
+
+      function postJSON(path, json, callback) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("post", path, true);
+          xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+          xhr.onload = function() {
+              var status = xhr.status;
+              if (status == 200) {
+                  callback(null, xhr.response);
+              } else {
+                  callback(status);
+              }
+          };
+          xhr.send(json);
+      };
+
+      // This is the starting value for the editor
+      // We will use this to seed the initial editor 
+      // and to provide a "Restore to Default" button.
+      var starting_value = [
+          {
+            "title": "Example Meeting",
+            "time": {
+                "start": "09:00",
+                "end": "10:30"
+            },
+            "info": {
+                "room": "Room 103",
+                "owner": "Michael Jackson"
+            }
+        }
+      ];
+      
+      getJSON('../events.json', function(err, data){
+          if (err != null){
+              console.log('Error retrieving JSON file: ' + err);
+          } else {
+              starting_value = data;
+          }
+          initJSONEditor();
+      });
+
+      function initJSONEditor(){
+          // Initialize the editor
+          var editor = new JSONEditor(document.getElementById('editor_holder'),{
+              // Enable fetching schemas via ajax
+              ajax: true,
+
+              // The schema for the editor
+              schema: {
+                  type: "array",
+                  title: "Events",
+                  format: "tabs",
+                  items: {
+                      title: "Event",
+                      headerTemplate: "{{i}} - {{self.title}}",
+                      $ref: "event.json"
+                  }
+              },
+
+              // Seed the form with a starting value
+              startval: starting_value,
+
+              // Disable additional properties
+              no_additional_properties: true,
+
+              // Disable Json and Properties buttons
+              disable_edit_json: true,
+              disable_properties: true,
+
+              // Require all properties by default
+              required_by_default: true
+          });
+
+          // Hook up the submit button to log to the console
+          document.getElementById('submit').addEventListener('click',function() {
+              // Get the value from the editor
+              console.log(editor.getValue());
+
+              // Validate JSON
+              var errors = editor.validate();
+
+              if (errors.length) {
+                  console.log('Invalid json. Cannot save it');
+                  console.log(errors);
+                  jsonUpdatedError();
+              } else {
+                  // Submit json data
+                  postJSON('submit.php', JSON.stringify(editor.getValue()), function(err, data){
+                      if (err != null){
+                          jsonUpdatedError();   
+                      } else {
+                          if (data == "ok"){
+                              jsonUpdatedOk();
+                          } else {
+                              jsonUpdatedError();
+                          }
+                      }
+                  });
+              };
+          });
+
+          // Hook up the Restore to Default button
+          document.getElementById('restore').addEventListener('click',function() {
+              editor.setValue(starting_value);
+          });
+
+          // Hook up the validation indicator to update its 
+          // status whenever the editor changes
+          editor.on('change',function() {
+              // Get an array of errors from the validator
+              var errors = editor.validate();
+
+              var indicator = document.getElementById('valid_indicator');
+
+              // Not valid
+              if(errors.length) {
+                  console.log(errors);
+                  indicator.className = 'label label-danger';
+                  indicator.textContent = 'not valid';
+              }
+              // Valid
+              else {
+                  //console.log('valid json');
+                  indicator.className = 'label label-success';
+                  indicator.textContent = 'valid';
+              }
+          });
+      }
+    </script>
+  </body>
+</html>
