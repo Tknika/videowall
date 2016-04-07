@@ -3,11 +3,19 @@ A very simple videowall system, developed to show our meetings and events timeta
 
 ![captura de pantalla 2016-04-07 a las 21 47 18](https://cloud.githubusercontent.com/assets/1846038/14364803/cc98702c-fd0a-11e5-8c87-9c91f00cfa4d.png)
 
-Requirements:
+## Requirements and Features
+
+**Requirements**:
 - PHP
 - Web server
 
-Features:
+**Features**:
 - Information stored in a JSON file. MySQL NOT needed!
 - Admin UI to manage your events data (title, timetable, responsible person, room, etc)
 - It will automatically emphasize some meetings depending on the time
+
+## Installation
+
+1. Download this code to your web server
+2. Protect the **admin** folder using htpasswd
+3. Change json file permissions: `chown www-data events.json`
