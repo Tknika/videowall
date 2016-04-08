@@ -39,8 +39,12 @@ foreach ($events as $key => $event){
                     <?=$event['title']?>
                 </div>
                 <div class="info">
+		    <?if ($event['info']['room'] != ''){?>
                     <div class="room"><i class="fa fa-globe fa-fw"></i><?=$event['info']['room']?></div>
+	            <?}?>
+		    <?if ($event['info']['owner'] != ''){?>
                     <div class="owner"><i class="fa fa-user fa-fw"></i><?=$event['info']['owner']?></div>
+		    <?}?>
                 </div>
             </div>
 <?php
